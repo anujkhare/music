@@ -29,10 +29,7 @@ class SignalWindowDataset:
         file_path = self.file_list[ix]
 
         # If the annotation for this file is missing, raise a ValueError!
-        annot_path = file_path.with_suffix('.txt')
-        if not annot_path.exists():
-            raise FileNotFoundError(str(annot_path))
-        target_onsets = self._load_target_onsets(annot_path)
+        target_onsets = self._load_target_onsets(annot_file_path=file_path.with_suffix('.txt'))
 
         # Load the audio file
         signal, sr_final = librosa.load(str(file_path), sr=self.sr)
@@ -82,16 +79,23 @@ class SignalWindowDataset:
 
     @staticmethod
     def _get_random_signal_crop(signal, sr, onsets, crop_len_sec):
-        start_s = 0  # FIXME
-        end_s = start_s + crop_len_sec
+        n_total_frames = signal.shape[0]
+        n_frames_in_crop = crop_len_sec * sr
 
-        signal_sample = signal[start_s * sr: end_s * sr]
-        onsets_in_sample = SignalWindowDataset._get_onsets_in_range(onsets, start_s, end_s, relative=True)
+        start_frame = np.random.randint(0, n_total_frames - n_frames_in_crop)
+        end_frame = start_frame + n_frames_in_crop
+
+        signal_sample = signal[start_frame: end_frame]
+        onsets_in_sample = SignalWindowDataset._get_onsets_in_range(
+            onsets, start_s=(start_frame / sr), end_s=(end_frame / sr), relative=True
+        )
 
         return signal_sample, onsets_in_sample
 
     @staticmethod
     def _load_target_onsets(annot_file_path) -> np.ndarray:
+        if not annot_file_path.exists():
+            raise FileNotFoundError(str(annot_file_path))
         df_annot = pd.read_csv(annot_file_path, sep='\t', )
         target_onsets = df_annot.OnsetTime.values
 
