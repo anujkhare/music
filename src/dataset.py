@@ -6,16 +6,18 @@ import pathlib
 
 
 class SignalWindowDataset:
-    def __init__(self, folder_path, sr=None, windows_per_second=32, crop_len_sec=1, feature_extractor=None) -> None:
+    def __init__(self, folder_path, sr=None, crop_len_sec=1) -> None:
         path_to_data = pathlib.Path(folder_path)
         wav_files = list(path_to_data.glob('**/*.wav'))
 
         self.file_list = wav_files
         self.sr = sr
-        self.windows_per_second = windows_per_second  # no. of windows to create per second of the audio
         self.crop_len_sec = crop_len_sec  # HOw many seconds of the audio to consider in one sample
 
-        self.feature_extractor = feature_extractor or (lambda x: x)
+        # Extract STFT features on disjoint windows!
+        window_size = 1024
+        self.feature_extractor = functools.partial(librosa.stft, n_fft=window_size, hop_length=window_size)
+        self.window_size = window_size
 
     def __getitem__(self, ix):
         file_path = self.file_list[ix]
@@ -27,28 +29,24 @@ class SignalWindowDataset:
         target_onsets = self._load_target_onsets(annot_path)
 
         # Load the audio file
-        signal, sr_final = librosa.load(file_path, sr=self.sr)
+        signal, sr_final = librosa.load(str(file_path), sr=self.sr)
 
         # Choose a random sample of fixed length
-        signal_sample, onsets_in_sample = self._get_random_signal_crop(
+        signal_crop, onsets_in_sample = self._get_random_signal_crop(
             signal=signal, sr=sr_final, onsets=target_onsets, crop_len_sec=self.crop_len_sec
         )
 
-        sec_per_window = 1. / self.windows_per_second
-        # frames_per_window = math.floor(sr_final * 1. / self.windows_per_second)
-        # Split this signal into multiple windows
-        signal_windows = []
+        # Extract features for the crop
+        features = self.feature_extractor(signal_crop)
+        features = features.transpose((1, 0))  # n_samples * n_feats
+
+        # For each disjoint window, mark 1 if an onset was present in it, else 0
         labels = []
+        for ix in range(features.shape[0]):
+            start_frame = max(0, int(ix * self.window_size - self.window_size / 2))
+            end_frame = min(signal_crop.shape[0], ix * self.window_size + self.window_size / 2)
 
-        for ix in range(self.windows_per_second):
-            start_s = ix * sec_per_window
-            end_s = (ix + 1) * sec_per_window
-            window = signal_sample[int(start_s * sr_final): int(end_s * sr_final)]
-
-            # Apply some pre-processing / feature extraction
-            features = self.feature_extractor(window)
-            signal_windows.append(features[np.newaxis, ...])
-
+            start_s, end_s = start_frame / sr_final, end_frame / sr_final
             # Get the target label
             onsets_in_window = self._get_onsets_in_range(
                 onsets=onsets_in_sample, relative=False,
@@ -56,19 +54,17 @@ class SignalWindowDataset:
             )
             labels.append(len(onsets_in_window) > 0)  # If there is at least one onset in the window, mark 1, else 0.
 
-        signal_windows = np.vstack(signal_windows)
-        assert signal_windows.shape[0] == self.windows_per_second
         labels = np.array(labels).astype(np.long)
-        assert labels.shape[0] == self.windows_per_second
+        assert labels.shape[0] == features.shape[0]
 
         return {
-            'signal': signal_sample,
+            'signal': signal_crop,
             'sr': sr_final,
-            'onsets': onsets_in_window,
+            'onsets': onsets_in_sample,
 
-            'windows': signal_windows,
+            # 'windows': signal_windows,
+            'features': features,
             'labels': labels,
-#             'file_path': file_path,
         }
 
     @staticmethod
@@ -103,10 +99,8 @@ class SignalWindowDataset:
 
 if __name__ == '__main__':
     dataset = SignalWindowDataset(
-        folder_path='audio',
-        feature_extractor=functools.partial(librosa.stft, n_fft=2048)
+        folder_path='../data',
     )
 
     datum = dataset[0]
-    print(datum['labels'])
     print(datum['labels'])
