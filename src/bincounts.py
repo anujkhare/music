@@ -16,14 +16,20 @@ def get_bin_counts(dataloader, keys, n_iters=1000):
     bincounts = {}
 
     # sample data
-    for ix, batch in tqdm.tqdm(enumerate(dataloader)):
-        if ix >= n_iters:
-            break
-        for key in keys:
-            values = batch[key].data.cpu().numpy()
-            values = values[np.where(values != -100)].flatten().tolist()
+    iters = 0
+    while True:
+        for ix, batch in enumerate(dataloader):
+            if iters >= n_iters:
+                break
+            for key in keys:
+                values = batch[key].data.cpu().numpy()
+                values = values[np.where(values != -100)].flatten().tolist()
 
-            all_values[key].extend(values)
+                all_values[key].extend(values)
+
+            iters += 1
+        if iters >= n_iters:
+            break
 
     # calculate bin counts for each target
     for key in tqdm.tqdm(keys):
