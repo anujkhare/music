@@ -95,7 +95,7 @@ class SignalWindowDataset:
             note_vectors.append(self._get_multi_hot_notes(notes_in_window)[:, np.newaxis])
 
         labels = np.array(labels).astype(np.long)[np.newaxis, ...]
-        note_vectors = np.hstack(note_vectors)
+        note_vectors = np.hstack(note_vectors).astype(np.float32)  # each element represents the probability of the particular note in the resp window
         assert labels.shape[1] == n_windows and labels.shape[0] == 1
         assert np.all(note_vectors.shape == np.array([N_NOTES, n_windows]))
         assert np.all(note_vectors.any(axis=0) == labels[:])  # Only have notes marked in windows with onsets
@@ -122,7 +122,7 @@ class SignalWindowDataset:
     def _get_multi_hot_notes(notes: List[int]) -> np.ndarray:
         notes = np.unique(notes)
         assert np.all(notes <= 108) and np.all(notes >= 21)
-        notes -= 20
+        notes -= 21
 
         multi_hot = np.zeros(N_NOTES)
         multi_hot[notes] = 1
@@ -134,7 +134,7 @@ class SignalWindowDataset:
         inds = (start_s <= df_annots[col]) & (df_annots[col] <= end_s)
         df_sub = df_annots.loc[inds]
         if relative:
-            df_sub[['OnsetTime', 'OffsetTime']] -= start_s
+            df_sub.loc[:, ['OnsetTime', 'OffsetTime']] -= start_s
         return df_sub
 
     @staticmethod
