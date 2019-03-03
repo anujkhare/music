@@ -1,25 +1,29 @@
 import torch
 import torch.nn.functional as F
 
+
 class ConvBlock(torch.nn.Module):
     def __init__(self, n_in, n_out, kernel_size, stride, padding):
         super().__init__()
-        
+
         self.block = torch.nn.Sequential(
             torch.nn.Conv2d(n_in, n_out, kernel_size=kernel_size, stride=stride, padding=padding),
             torch.nn.ReLU(inplace=True),
             torch.nn.BatchNorm2d(n_out),
             torch.nn.Dropout2d(p=0, inplace=True),
         )
-    
+
     def forward(self, x):
         return self.block(x)
-        
-        
+
+
 class SimpleFrameCNN(torch.nn.Module):
-    def __init__(self, n_feats, n_channels_in=1, n_classes=2,) -> None:
+    """
+    Make one prediction per frame. Simplest model possible - used for the onset prediction baseline.
+    """
+    def __init__(self, n_feats, n_channels_in=1, n_classes=2) -> None:
         super().__init__()
-        
+
         self.feature_extractor = torch.nn.Sequential(
             ConvBlock(n_channels_in, 16, kernel_size=9, stride=1, padding=4),
             ConvBlock(16, 32, kernel_size=7, stride=1, padding=3),
