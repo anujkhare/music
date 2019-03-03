@@ -1,6 +1,7 @@
 import functools
 import librosa
 import numpy as np
+import os
 import pandas as pd
 import pathlib
 
@@ -24,18 +25,39 @@ class SignalWindowDataset:
         window_size = 1024
         self.feature_extractor = functools.partial(stft_features, n_fft=window_size, hop_length=window_size)
         self.window_size = window_size
+        
+        self._df_stats = None
+    
+    @property
+    def df_stats(self,):
+        if self._df_stats is not None:
+            return self._df_stats
+
+        durations = []
+        for file_path in self.file_list:
+            signal, sr = librosa.load(file_path, sr=None)
+            durations.append({
+                'file_path': file_path,
+                'sr': sr,
+                'frames': signal.shape[0],
+            })
+        _df_stats = pd.DataFrame(durations)
+        _df_stats['seconds'] = _df_stats.frames / _df_stats.sr
+        self._df_stats = _df_stats
+        return _df_stats
 
     def __getitem__(self, ix):
         file_path = self.file_list[ix]
 
         # If the annotation for this file is missing, raise a ValueError!
-        target_onsets = self._load_target_onsets(annot_file_path=file_path.with_suffix('.txt'))
+        annot_file_path = file_path.with_suffix('.txt')
+        target_onsets = self._load_target_onsets(annot_file_path=annot_file_path)
 
         # Load the audio file
         signal, sr_final = librosa.load(str(file_path), sr=self.sr)
 
         # Choose a random sample of fixed length
-        signal_crop, onsets_in_sample = self._get_random_signal_crop(
+        signal_crop, onsets_in_sample, start_frame_crop = self._get_random_signal_crop(
             signal=signal, sr=sr_final, onsets=target_onsets, crop_len_sec=self.crop_len_sec
         )
 
@@ -65,9 +87,10 @@ class SignalWindowDataset:
             'sr': sr_final,
             'onsets': onsets_in_sample,
 
-            # 'windows': signal_windows,
             'features': features[np.newaxis, ...],  # 1 * n_windows * n_feats
             'labels': labels[np.newaxis, ...],  # 1 * n_windows
+            'file_path': str(annot_file_path),
+            'start_s': start_frame_crop/sr_final,
         }
 
     @staticmethod
@@ -82,25 +105,25 @@ class SignalWindowDataset:
         n_total_frames = signal.shape[0]
         n_frames_in_crop = crop_len_sec * sr
 
-        start_frame = np.random.randint(0, n_total_frames - n_frames_in_crop)
-        end_frame = start_frame + n_frames_in_crop
+        start_frame = np.random.randint(0, max(n_total_frames - n_frames_in_crop, 1))
+        end_frame = min(start_frame + n_frames_in_crop, n_total_frames)
 
         signal_sample = signal[start_frame: end_frame]
         onsets_in_sample = SignalWindowDataset._get_onsets_in_range(
             onsets, start_s=(start_frame / sr), end_s=(end_frame / sr), relative=True
         )
 
-        return signal_sample, onsets_in_sample
+        return signal_sample, onsets_in_sample, start_frame
 
     @staticmethod
     def _load_target_onsets(annot_file_path) -> np.ndarray:
-        if not annot_file_path.exists():
+        if not os.path.exists(annot_file_path):
             raise FileNotFoundError(str(annot_file_path))
         df_annot = pd.read_csv(annot_file_path, sep='\t', )
         target_onsets = df_annot.OnsetTime.values
 
-        target_onsets = np.unique(target_onsets)
         target_onsets = np.round(target_onsets, decimals=2)
+        target_onsets = np.unique(target_onsets)
         return target_onsets
 
     def __len__(self):
