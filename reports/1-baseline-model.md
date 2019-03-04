@@ -163,6 +163,10 @@ Further analysis is required for this.
 I compared the onset prediction results on the subset (overfit data) with
 librosa's onset prediction and they look favorable for my model!
 
+| Method | Precision | Recall | F1 | Support (n_samples) |
+| ---- | ---- | ---- | ---- | ---- |
+| Librosa | 100% | 63.70 % | 77.35 % | 5 |
+| This model | 96.63% | 97.72 % | 97.18 % | 5 |
 
 Again, taking this with a grain of salt since I know that my model is
 presently overfitting on this data.
