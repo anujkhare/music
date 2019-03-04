@@ -1,14 +1,3 @@
-
-“Baseline models on MAPS (piano) dataset.
-
-Target:
-1. CNN on a sliding window for note recognition.
-2. A blog explaining pre/post processing and limitations of the model
-
-Ambitious:
-1. CNN based onset (when did the note start) prediction model
-2. Combine onset+note predictions”
-
 # Transcribing music using machine learning!
 
 I’m building a system that can automatically generate sheet music for
@@ -38,7 +27,7 @@ Following the same paradigm, here is what my pipeline does:
 3. For each onset, classify the notes being played
 
 ## The very first results!
-[Here is a sample piano music file from the MAPS data set]().
+[Here is a sample piano music file from the MAPS data set](https://drive.google.com/open?id=1NXadA2vOwoTP52DdVSbNcBwRXuqQJkWm).
 
 ### Onset prediction
 The onset prediction task would detect where each new note starts hence
@@ -48,8 +37,8 @@ To "visualize" this better, I've added a "pause" (no sound) between
 each pair of segments. You should now hear one note, followed by a
 pause, then the next note, and so on.
 
-- [Here is how it should ideally sound - based on annotations]().
-- [Here is what the model predicts]().
+- [Here is how it should ideally sound - based on annotations](https://drive.google.com/open?id=1YjnMUr7CFEfAVVRWeEZOdqMvYFsX8IC2).
+- [Here is what the model predicts](https://drive.google.com/open?id=1QwChece1WT-J7tfQTHFdvh3blrZenPw7).
 
 Below is a visualization of the first 2 seconds of the signal:
 
@@ -162,15 +151,32 @@ For training, in each epoch:
 
 
 ### Detailed results
-- Comparison with onset base-line
-- Small vs large data-set
 
-- Visualization of the signal, predicted and actual onsets
-- Visualization of the notes??
+#### Generalization
+I need to fill the results here (to-do on me!), but tl;dr: the model
+works beautifully on a random subset containing just 4 songs (overfitting
+here), however, it does not generalize well on the entire set ~350 songs.
 
+Further analysis is required for this.
+
+#### Onsets baseline: librosa onset_predict
+I compared the onset prediction results on the subset (overfit data) with
+librosa's onset prediction and they look favorable for my model!
+
+
+Again, taking this with a grain of salt since I know that my model is
+presently overfitting on this data.
 
 ### Next steps
 1. Improving model generalization: I have a few thoughts on why the
-    generalization is poor right now:
-    1.
+    generalization is poor right now, though some more analysis is
+    required:
+    1. Some songs are very long (>5 minutes), while others short (< 2s)
+        I sample from them uniformly right now leading to a model bias.
+    2. The model is not powerful enough - least likely but possible
+
 2. Base-line model on the [guitarset dataset](https://github.com/marl/GuitarSet).
+3. Evaluation metrics for the note annotations
+4. Better demos / visualizations
+    a. "Hear" the transcribed music
+    b. Fancier plots
