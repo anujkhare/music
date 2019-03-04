@@ -130,7 +130,7 @@ per window:
 1. binary onset classification
 2. 88 way note classification
 
-[You can find the model code here](https://github.com/anujkhare/music/blob/71f662747c02be50e75274a6b98f926ec345affc/src/models/frame_cnn.py#L45).
+[You can find the model code here](https://github.com/anujkhare/music/blob/master/src/models/frame_cnn.py#L45).
 
 ### Loss function and training
 A simple Binary Cross Entropy loss (with weights for class-imbalance)
