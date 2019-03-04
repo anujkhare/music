@@ -50,8 +50,8 @@ onsets are marked in red.
 ### Note Transcription
 A typical piano has 88 keys (each corresponding to one note).
 
-The image below shows the actual (annotated) transcription and the
-predicted transcription from the model:
+The image below shows the actual (annotated) transcription (top) and the
+predicted transcription from the model (bottom):
 
 ![transcription](1-data/sample_transcription.png)
 
