@@ -53,9 +53,26 @@ class SignalWindowDataset:
                 'frames': signal.shape[0],
             })
         _df_stats = pd.DataFrame(durations)
-        _df_stats['seconds'] = _df_stats.frames / _df_stats.sr
+        _df_stats.loc[:, 'seconds'] = _df_stats.frames / _df_stats.sr
         self._df_stats = _df_stats
         return _df_stats
+
+    @property
+    def sampling_weights(self) -> np.ndarray:
+        """
+        Get the sampling weights to be used for each element.
+
+        Since we only feed a fixed window of 2s from each song, if the shortest song in the dataset is of 2s
+        and the longest one is 8s, we should ideally sample the longer song 4x more than the shorter one to ensure
+        that we see all the 2s windows roughly the same number of times.
+
+        These weights are very approximate and perfectly balanced sampling requires us to consider the number of windows
+        in each song (which depends on crop_len_in_sec) and on the starting points!
+        """
+        df_stats = self.df_stats
+        durations = df_stats['seconds']
+        weights = durations / durations.min()
+        return weights
 
     def __getitem__(self, ix):
         file_path = self.file_list[ix]
@@ -74,7 +91,7 @@ class SignalWindowDataset:
         df_notes_in_crop = self._get_rows_in_range(
             df_annots=df_notes, start_s=start_s_crop, end_s=end_s_crop, relative=True
         )
-        target_onsets = np.unique(df_notes_in_crop.OnsetTime)
+        target_onsets = np.unique(df_notes_in_crop['OnsetTime'])
 
         # Extract features for the crop
         features = self.feature_extractor(signal_crop)  # n_feats * n_windows
@@ -132,7 +149,7 @@ class SignalWindowDataset:
     def _get_rows_in_range(df_annots: pd.DataFrame, start_s: float, end_s: float, col: str = 'OnsetTime',
                            relative: bool = False) -> pd.DataFrame:
         inds = (start_s <= df_annots[col]) & (df_annots[col] <= end_s)
-        df_sub = df_annots.loc[inds]
+        df_sub = df_annots.loc[inds].copy()
         if relative:
             df_sub.loc[:, ['OnsetTime', 'OffsetTime']] -= start_s
         return df_sub
