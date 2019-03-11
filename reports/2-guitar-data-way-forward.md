@@ -25,13 +25,9 @@ longer songs during training, causing a "bias".
 
 
 ### Training the base-line model on the GuitarSet data-set
-It turned out to be fairly straight-forward. Here is a sample from the
-dataset and the corresponding predicted transcription from the model:
+It turned out to be fairly straight-forward.
 
-
-Creating guitar tabs from these notes is not a very easy problem and I
-need to explore solutions (or feasibility!) in the coming weeks.
-
+I'll upload a sample shortly.
 <!--I also tested this on audio from real YouTube videos. It did surprisingly-->
 <!--okay,-->
 
@@ -94,4 +90,4 @@ Here are the open problems that I'm going to tackle in order of priority:
     accurate. I have since found a couple more tools that I'd like to
     benchmark against.
 
-The answers to these will determine how I proceed with this project.
+The findings from these will determine how I proceed with this project.
