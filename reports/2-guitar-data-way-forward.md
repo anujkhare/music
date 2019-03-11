@@ -28,10 +28,11 @@ longer songs during training, causing a "bias".
 It turned out to be fairly straight-forward since I just needed to convert
  the data loader to make this work.
 
-Here is a target and predicted transcription from the validation set:
+Here is a predicted (top) and target (bottom) transcription from the validation set:
 ![transcription](data/2/guitar-transcription.png)
 
-This corresponds to [this song]().
+This corresponds to [this song](). As you can see, they look pretty similar,
+except for a few misses.
 
 As before, I'm still not able to "play / hear" the transcribed music.
 This is because I am not yet predicting the offsets (when the note ends).
