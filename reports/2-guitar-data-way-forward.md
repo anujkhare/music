@@ -25,47 +25,35 @@ longer songs during training, causing a "bias".
 
 
 ### Training the base-line model on the GuitarSet data-set
-Now, I have a working prototype! Here is a sample output that it produces:
+It turned out to be fairly straight-forward. Here is a sample from the
+dataset and the corresponding predicted transcription from the model:
 
 
-At the beginning, this was all an idea and I had no background in signal
-processing at all. I relied on my machine learning skills to
+Creating guitar tabs from these notes is not a very easy problem and I
+need to explore solutions (or feasibility!) in the coming weeks.
+
+<!--I also tested this on audio from real YouTube videos. It did surprisingly-->
+<!--okay,-->
 
 
-#### Real world example!
-And it works (okay-ish) on audio that I took from the first 1 minute of
-this video!
-
-With this, I have validated the feasibility of
-There is a lot of room for improvement in the model right now:
-1. Need to predict the "offsets" (where the note ends) so that it is
-    possible to actually play the transcribed music back
-1. This is a simplistic model - there is
-
-
-## Exploring other solutions
+### Exploring other solutions
 
 I spent a fair amount of time this week trying to explore the existing
 solutions that solve one or more parts of this problem.
 
-### Traditional software
+There are a whole bunch of notation software like MagicScore Audioscore,
+Guitar Pro, Finale, Akoff, etc. that are primarily targeted towards
+music composers.
 
-There are a whole bunch of notation software like MuseScore, Guitar Pro,
-etc.
-
-### Recent machine learning based solutions
-There's actually a fair amount of work in Automatic Music Transcription
-using Machine Learning [1](), [2](), [3](), etc. The most notable of
+There's also a fair amount of work in Automatic Music Transcription
+using Machine Learning [1](https://ieeexplore.ieee.org/document/7178333),
+[2](http://ismir2015.uma.es/articles/227_Paper.pdf), [3](), etc. The most notable of
 these is Google Magenta's piano music transcription. They have an
-[amazing demo as well]()!
+[amazing demo as well](https://magenta.tensorflow.org/oaf-js)!
 
-I also found []() which is quite similar (but better) to the baseline
-model that I created! It also works majorly for piano music (was trained
-on the MAPS dataset).
-
-Most of these problems have actually been solved in [Onsets and Frames]()
-work from Google Magenta. They even have an [amazing demo which works
-for piano music transcription]().
+I also found [AnthemScore](https://www.lunaverus.com/) which is quite
+similar (but better) to the baseline model that I created!
+It also works for piano music (it was trained on the MAPS dataset).
 
 
 ## The way forward
@@ -78,7 +66,7 @@ is a much improved version of it. I'm going to build on top of it and
 focus on getting a end-to-end usable solution first.
 
 Here are the open problems that I'm going to tackle in order of priority:
-1. Making it work on real videos!
+1. Making it work on real videos, scoped down to
     1. Create a "real-world" test set from YouTube videos
     2. (Qualitatively) Evaluate the models on these videos
 
