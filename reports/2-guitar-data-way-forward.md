@@ -25,9 +25,17 @@ longer songs during training, causing a "bias".
 
 
 ### Training the base-line model on the GuitarSet data-set
-It turned out to be fairly straight-forward.
+It turned out to be fairly straight-forward since I just needed to convert
+ the data loader to make this work.
 
-I'll upload a sample shortly.
+Here is a target and predicted transcription from the validation set:
+![transcription](data/2/guitar-transcription.png)
+
+This corresponds to [this song]().
+
+As before, I'm still not able to "play / hear" the transcribed music.
+This is because I am not yet predicting the offsets (when the note ends).
+
 <!--I also tested this on audio from real YouTube videos. It did surprisingly-->
 <!--okay,-->
 
