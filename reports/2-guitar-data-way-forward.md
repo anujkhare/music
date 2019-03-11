@@ -12,7 +12,7 @@ datasets and making this work for "clean guitar music".
 ## Week's progresss!
 
 ### Getting the baseline model to generalize
-I implemented a very simplistic base-line model last week as [described
+Last week, I implemented a very simplistic base-line model last week as [described
 in this post](1-baseline-model.md). As mentioned earlier, it was not
 "generalizing" well when trained with all the songs in the dataset.
 
@@ -66,7 +66,7 @@ is a much improved version of it. I'm going to build on top of it and
 focus on getting a end-to-end usable solution first.
 
 Here are the open problems that I'm going to tackle in order of priority:
-1. Making it work on real videos, scoped down to
+1. Making it work on real videos, scoped down to just guitar solos and finger-picking performances
     1. Create a "real-world" test set from YouTube videos
     2. (Qualitatively) Evaluate the models on these videos
 
@@ -82,15 +82,16 @@ Here are the open problems that I'm going to tackle in order of priority:
     strings / frets to play them on. There are multiple configurations
     possible always.
 
-3. Create a usable demo for guitar music transcription for others to use
+3. Create a usable online demo for guitar music transcription for others to use
 
-4. User research: there are two major user profiles - beginners (like
+4. User research: there are two major user profiles - beginners (like myself who
+    would prefer ease-of-use) and advanced musicians (who would prefer
+    control and the ability to edit or correct and possibly export the
+    transcription)
 
 5. More competitive analysis against existing tools for my "real-world"
     test set. I had done this once earlier and most tools weren't very
     accurate. I have since found a couple more tools that I'd like to
     benchmark against.
-
-    Document the findings.
 
 The answers to these will determine how I proceed with this project.
