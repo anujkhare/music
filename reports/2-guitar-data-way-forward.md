@@ -31,7 +31,7 @@ It turned out to be fairly straight-forward since I just needed to convert
 Here is a predicted (top) and target (bottom) transcription from the validation set:
 ![transcription](data/2/guitar-transcription.png)
 
-This corresponds to [this song](). As you can see, they look pretty similar,
+This corresponds to [this song](https://soundcloud.com/anuj-khare-275412687/00-bn1-129-eb-solo-hex). As you can see, they look pretty similar,
 except for a few misses.
 
 As before, I'm still not able to "play / hear" the transcribed music.
